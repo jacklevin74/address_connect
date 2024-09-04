@@ -8,11 +8,11 @@ This project provides a web application where users can connect their Ethereum w
 - **Ethereum Wallet Connection**: Users connect via MetaMask.
 - **Message Signing**: Users sign a message to verify ownership of their Ethereum address.
 - **SVM Address Association**: Users can input their Solana-compatible public key and associate it with their Ethereum address.
-- **Backend Verification**: A Node.js backend verifies the signed message and logs the association of Ethereum and Solana addresses.
+- **Backend Verification**: A NodeJs express backend verifies the signed message and logs the association of Ethereum and Solana addresses.
 
 ## Prerequisites
 
-- **Node.js**: Ensure Node.js is installed on your machine. You can download it from [here](https://nodejs.org).
+- **Node.js**: Ensure NodeJs is installed on your machine. You can download it from [here](https://nodejs.org).
 - **MetaMask**: MetaMask should be installed in your browser for wallet connection.
 
 ## Getting Started
