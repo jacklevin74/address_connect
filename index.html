@@ -112,7 +112,7 @@
             }
         }
 
-        // Connect MetaMask (Connect Wallet)
+        // Connect Wallet
         document.getElementById('connectWallet').addEventListener('click', async () => {
             if (window.ethereum) {
                 try {
@@ -121,19 +121,19 @@
                     alert(`Connected with ${userAccount}`);
                     updateStatus(true);
                 } catch (error) {
-                    console.error("Error connecting MetaMask", error);
-                    alert("Failed to connect Wallet");
+                    console.error("Error connecting wallet", error);
+                    alert("Failed to connect wallet");
                 }
             } else {
-                alert('Please install MetaMask!');
+                alert('Please install a wallet extension like MetaMask!');
             }
         });
 
 
-        // Sign the message using MetaMask
+        // Sign the message using Wallet
         document.getElementById('signMessage').addEventListener('click', async () => {
             if (!userAccount) {
-                alert("Please connect MetaMask first");
+                alert("Please connect your wallet first");
                 return;
             }
 
