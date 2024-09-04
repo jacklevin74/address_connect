@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Wallet Message Signing</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: black;
+            color: #00FF41;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px #00FF41;
+        }
+
+        button {
+            background-color: black;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00FF41;
+            color: black;
+        }
+
+        input {
+            background-color: black;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            padding: 10px;
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        input::placeholder {
+            color: #00FF41;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00FF41;
+            box-shadow: 0 0 5px #00FF41;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+
+        #status {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @keyframes matrixRain {
+            0% {
+                color: transparent;
+            }
+            100% {
+                color: #00FF41;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Connect Ethereum address to SVM address</h1>
+    <div id="status">Wallet Status: Disconnected</div>
+    <input type="text" id="solanaPubkey" placeholder="" />
+    <button id="connectWallet">Connect Wallet</button>
+    <button id="signMessage" disabled>Submit</button>
+
+    <div id="output"></div>
+
+    <script>
+        let userAccount;
+
+	// The message to be signed
+        const message = "This action will not generate a transaction. It will simply sign a message which will connect your ethereum address to SVM compatible address";
+
+        // Update wallet connection status
+        function updateStatus(connected) {
+            const statusElement = document.getElementById('status');
+            if (connected) {
+                statusElement.textContent = `Wallet Status: Connected (${userAccount})`;
+                document.getElementById('signMessage').disabled = false;
+                document.getElementById('connectWallet').disabled = true;
+            } else {
+                statusElement.textContent = "Wallet Status: Disconnected";
+                document.getElementById('signMessage').disabled = true;
+                document.getElementById('connectWallet').disabled = false;
+                document.getElementById('solanaPubkey').value = '';  // Clear input
+                document.getElementById('output').innerHTML = '';  // Clear any previous output
+            }
+        }
+
+        // Connect MetaMask (Connect Wallet)
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            if (window.ethereum) {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    alert(`Connected with ${userAccount}`);
+                    updateStatus(true);
+                } catch (error) {
+                    console.error("Error connecting MetaMask", error);
+                    alert("Failed to connect Wallet");
+                }
+            } else {
+                alert('Please install MetaMask!');
+            }
+        });
+
+
+        // Sign the message using MetaMask
+        document.getElementById('signMessage').addEventListener('click', async () => {
+            if (!userAccount) {
+                alert("Please connect MetaMask first");
+                return;
+            }
+
+            const solanaPubkey = document.getElementById('solanaPubkey').value;
+
+            if (!solanaPubkey) {
+                alert("Please enter your Solana public key.");
+                return;
+            }
+
+            try {
+                const signature = await ethereum.request({
+                    method: 'personal_sign',
+                    params: [message, userAccount],
+                });
+
+                console.log('Signed message:', signature);
+                console.log('Sending message to backend...');
+
+                // Send the message, signature, and custom Solana pubkey to the backend
+                const response = await fetch('http://206.72.198.218:3000/verify-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        signature: signature,
+                        solanaPubkey: solanaPubkey,
+                    }),
+                });
+
+                const result = await response.json();
+                console.log('Server response:', result);
+
+                const output = `
+                    <p>Signer address: ${result.signer}</p>
+                    <p>Solana Public Key: ${result.solanaPubkey}</p>
+                `;
+                document.getElementById('output').innerHTML = output;
+
+            } catch (error) {
+                console.error("Error signing message or sending to backend", error);
+                alert("An error occurred during the process.");
+            }
+        });
+
+        // Initial state
+        updateStatus(false);
+    </script>
+</body>
+</html>
