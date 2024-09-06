@@ -22,7 +22,7 @@ This project provides a web application where users can connect their Ethereum w
 First, clone this repository to your local machine.
 
 ```bash
-git clone https://github.com/your-username/matrix-wallet-message-signing.git
+git clone https://github.com/jacklevin74/matrix-wallet-message-signing.git
 cd matrix-wallet-message-signing
 npm install
 node server.js
