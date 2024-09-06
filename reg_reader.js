@@ -131,24 +131,24 @@ app.get('/reg-ledger-api', (req, res) => {
         return res.status(400).json({ error: 'Ethereum address is required' });
     }
 
-    const solanaAddress = getSolanaAddress(ethereumAddress);
+    const x1Address = getSolanaAddress(ethereumAddress);
 
-    if (solanaAddress) {
-        res.json({ ethereumAddress, solanaAddress });
+    if (x1Address) {
+        res.json({ ethereumAddress, x1Address });
     } else {
-        res.status(404).json({ error: 'No matching Solana address found for the given Ethereum address' });
+        res.status(404).json({ error: 'No matching X1 address found for the given Ethereum address' });
     }
 });
 
 // Route for API with path parameter
 app.get('/reg-ledger-api/:ethereumAddress', (req, res) => {
     const ethereumAddress = req.params.ethereumAddress;
-    const solanaAddress = getSolanaAddress(ethereumAddress);
+    const x1Address = getSolanaAddress(ethereumAddress);
 
-    if (solanaAddress) {
-        res.json({ ethereumAddress, solanaAddress });
+    if (x1Address) {
+        res.json({ ethereumAddress, x1Address});
     } else {
-        res.status(404).json({ error: 'No matching Solana address found for the given Ethereum address' });
+        res.status(404).json({ error: 'No matching X1 address found for the given Ethereum address' });
     }
 });
 
