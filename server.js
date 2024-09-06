@@ -26,7 +26,7 @@ app.post('/verify-message', async (req, res) => {
       console.log('Signer of the message: ' + signerAddress + ' SVM Pubkey: ' +solanaPubkey);
 
       // Write signer address and Solana public key to a text file
-      const data = `Signer: ${signerAddress}\nSolana Public Key: ${solanaPubkey}\n`;
+      const data = `${signerAddress}:${solanaPubkey}\n`;
       fs.appendFileSync('signer_data.txt', data);
 
       res.json({ signer: signerAddress, solanaPubkey: solanaPubkey });

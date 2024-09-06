@@ -15,6 +15,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            padding: 0;
         }
 
         h1 {
@@ -71,23 +73,101 @@
             font-weight: bold;
         }
 
-        @keyframes matrixRain {
-            0% {
-                color: transparent;
-            }
-            100% {
-                color: #00FF41;
-            }
+        /* Terminal mockup styling */
+        footer {
+            background-color: #1e1e1e;
+            width: 100%;
+            padding: 20px 0;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            max-width: 80%;
+            margin: 0 auto;
+            border: 1px solid #00FF41;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            white-space: normal;
+        }
+
+        .terminal-header {
+            background-color: #444;
+            color: #ccc;
+            border-radius: 10px 10px 0 0;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .terminal-header .buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .terminal-header .buttons div {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff5f56;
+        }
+
+        .terminal-header .buttons div:nth-child(2) {
+            background-color: #ffbd2e;
+        }
+
+        .terminal-header .buttons div:nth-child(3) {
+            background-color: #27c93f;
+        }
+
+        .terminal-body {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .terminal-body p {
+            margin: 0;
+            color: white;
+        }
+
+        footer p {
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .white-rabbit-link {
+            display: block;
+            margin-top: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+        .white-rabbit-link:hover {
+            text-decoration: underline;
         }
     </style>
     <script src="scripts/bs58.bundle.js"></script>
 </head>
 <body>
-    <h1>Enter Ethereum or Solana (X1) Address</h1>
+	<h1>XENBLOCKS MINER<br> address registration service</h1>
     <div id="status">Wallet Status: Disconnected</div>
-    <input type="text" id="addressInput" placeholder="Enter Solana or Ethereum Address" />
+    <input type="text" id="addressInput" placeholder="Enter your SVM (X1)" />
     <button id="connectWallet">Connect Wallet</button>
     <button id="signMessage" disabled>Submit</button>
+    <a href="https://xenblocks.io/reg-ledger" class="white-rabbit-link">Follow the White Rabbit</a>
 
     <div id="output"></div>
 
@@ -95,7 +175,7 @@
         let userAccount;
 
         // The message to be signed
-        const message = "This action will not generate a transaction. It will simply sign a message which will connect your Ethereum or Solana address";
+        const message = "This action will not generate a transaction or ask you for fees. It will simply ask you to sign a message which will verify the ownership of your address";
 
         // Verify bs58 library is loaded
         if (typeof bs58 === 'undefined') {
@@ -202,7 +282,7 @@
                 console.log('Sending message to backend...');
 
                 // Send the message, signature, and address to the backend as solanaPubkey (even if it's an Ethereum address)
-                const response = await fetch('http://206.72.198.218:3000/verify-message', {
+                const response = await fetch('https://xenblocks.io/verify-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -232,5 +312,26 @@
         // Initial state
         updateStatus(false);
     </script>
+
+    <!-- Mockup of terminal with explanation -->
+    <footer>
+        <div class="terminal">
+            <div class="terminal-header">
+                <div>XENBLOCKs Terminal</div>
+                <div class="buttons">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="terminal-body">
+                <p>Use your preferred Ethereum wallet to connect to this Web3 application and link your XENBLOCKS MINER Ethereum address to an X1 SVM-compatible address.</p>
+                <p>You must be the owner of both addresses to continue using Xenium (XNM) on the X1 blockchain.</p>
+		<p> ... </p>
+		<p>This Web3 App will not ask you to send fees or any crypto.  Double check your browser address to be <u>https://xenblocks.io</u> only.  Do not interact with any other addresses </p>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>
