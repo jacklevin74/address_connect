@@ -24,7 +24,8 @@ First, clone this repository to your local machine.
 ```bash
 git clone https://github.com/jacklevin74/matrix-wallet-message-signing.git
 cd matrix-wallet-message-signing
-npm i ethers cors http-server
-nohup node server.js &
+npm install
+node server.js
+npm install -g http-server
 http-server .
 

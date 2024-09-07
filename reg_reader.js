@@ -1,12 +1,29 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
+const cors = require('cors');
+const sqlite3 = require('sqlite3').verbose();
 const port = 3003;
 const host = 'localhost';  // Set your specific IP address
 //const host = '186.233.186.56';  // Set your specific IP address
 
+app.use(cors());
+
 // Serve static files like CSS or JS
 app.use(express.static('public'));
+
+// Initialize SQLite database
+const db = new sqlite3.Database('signer_data.db', (err) => {
+    if (err) {
+        console.error('Error opening database', err);
+    } else {
+        console.log('Connected to the SQLite database.');
+        db.run(`CREATE TABLE IF NOT EXISTS signers (
+            solanaPubkey TEXT PRIMARY KEY,
+            signerAddresses TEXT
+        )`);
+    }
+});
 
 // Function to read signer_data.txt and format it into an array of objects
 // Ensures unique Ethereum addresses by filtering out duplicates and records where the second field starts with '0x'
@@ -31,7 +48,7 @@ function getSignerData() {
 // Function to truncate address
 function truncateAddress(address) {
     if (address.length <= 17) return address;  // Increased from 13 to 17 (30% wider)
-    return `${address.slice(0, 8)}..${address.slice(-8)}`;  // Increased from 6 to 8 characters on each side
+    return `${address.slice(0, 10)}..${address.slice(-10)}`;  // Increased from 6 to 8 characters on each side
 }
 
 // Route to serve the webpage
@@ -150,6 +167,25 @@ app.get('/reg-ledger-api/:ethereumAddress', (req, res) => {
     } else {
         res.status(404).json({ error: 'No matching X1 address found for the given Ethereum address' });
     }
+});
+
+// New route to query by Solana public key
+app.get('/reg-ledger-db-api/:solanaPubkey', (req, res) => {
+    const solanaPubkey = req.params.solanaPubkey;
+
+    db.get('SELECT signerAddresses FROM signers WHERE solanaPubkey = ?', [solanaPubkey], (err, row) => {
+        if (err) {
+            console.error('Error querying database:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (row) {
+            const ethAddresses = row.signerAddresses.split(',');
+            res.json({ solanaPubkey, ethAddresses });
+        } else {
+            res.status(404).json({ error: 'No matching Ethereum addresses found for the given Solana public key' });
+        }
+    });
 });
 
 app.listen(port, host, () => {
