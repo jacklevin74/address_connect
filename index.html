@@ -20,8 +20,8 @@
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
             text-shadow: 0 0 10px #00FF41;
         }
 
@@ -32,7 +32,7 @@
             padding: 10px 20px;
             margin: 10px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1rem;
             transition: all 0.3s ease;
         }
 
@@ -46,10 +46,11 @@
             border: 1px solid #00FF41;
             color: #00FF41;
             padding: 10px;
-            width: 520px;
+            width: 90%;
+            max-width: 500px;
             text-align: center;
             margin-bottom: 20px;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         input::placeholder {
@@ -64,13 +65,32 @@
 
         #output {
             margin-top: 20px;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         #status {
             margin-bottom: 20px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
+        }
+
+        /* Position the Connect Wallet button in the top right */
+        button#connectWallet {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: black;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        button#connectWallet:hover {
+            background-color: #00FF41;
+            color: black;
         }
 
         /* Terminal mockup styling */
@@ -88,7 +108,7 @@
             padding: 20px;
             color: white;
             font-family: 'Courier New', Courier, monospace;
-            max-width: 80%;
+            max-width: 90%;
             margin: 0 auto;
             border: 1px solid #00FF41;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -152,17 +172,74 @@
             margin-top: 10px;
             color: white;
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .white-rabbit-link:hover {
             text-decoration: underline;
         }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+
+            input {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+
+            #output {
+                font-size: 0.9rem;
+            }
+
+            #status {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            button {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            input {
+                font-size: 0.8rem;
+                padding: 6px;
+            }
+
+            #output {
+                font-size: 0.8rem;
+            }
+
+            #status {
+                font-size: 0.8rem;
+            }
+
+            .terminal {
+                max-width: 100%;
+            }
+
+            .white-rabbit-link {
+                font-size: 0.9rem;
+            }
+        }
     </style>
     <script src="scripts/bs58.bundle.js"></script>
 </head>
 <body>
-	<h1>XENBLOCKS MINER<br> address registration service</h1>
+    <h1>XENBLOCKS MINER<br> address registration service</h1>
     <div id="status">Wallet Status: Disconnected</div>
     <input type="text" id="addressInput" placeholder="Enter your SVM (X1)" />
     <button id="connectWallet">Connect Wallet</button>
@@ -327,11 +404,12 @@
             <div class="terminal-body">
                 <p>Use your preferred Ethereum wallet to connect to this Web3 application and link your XENBLOCKS MINER Ethereum address to an X1 SVM-compatible address.</p>
                 <p>You must be the owner of both addresses to continue using Xenium (XNM) on the X1 blockchain.</p>
-		<p> ... </p>
-		<p>This Web3 App will not ask you to send fees or any crypto.  Double check your browser address to be <u>https://xenblocks.io</u> only.  Do not interact with any other addresses </p>
+                <p> ... </p>
+                <p>This Web3 App will not ask you to send fees or any crypto.  Double check your browser address to be <u>https://xenblocks.io</u> only.  Do not interact with any other addresses </p>
             </div>
         </div>
     </footer>
 
 </body>
 </html>
+

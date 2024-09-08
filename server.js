@@ -3,6 +3,7 @@ const ethers = require('ethers');
 const fs = require('fs');
 const cors = require('cors');  // Import the CORS middleware
 const sqlite3 = require('sqlite3').verbose();
+const bs58 = require('bs58');
 
 const app = express();
 
@@ -12,6 +13,17 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Function to check if the input is a valid Base58 Solana public key
+function isValidBase58(pubkey) {
+    try {
+        const decoded = bs58.decode(pubkey);
+        return decoded.length === 32; // Solana public keys are 32 bytes
+    } catch (error) {
+        console.error('Error decoding Solana public key:', error);
+        return false;
+    }
+}
 
 // Initialize SQLite database with the new schema
 const db = new sqlite3.Database('signer_data.db', (err) => {
@@ -43,6 +55,11 @@ app.post('/verify-message', async (req, res) => {
 
     if (!message || !signature || !solanaPubkey) {
       return res.status(400).json({ error: 'Message, signature, and Solana public key are required' });
+    }
+
+    // Validate Solana public key
+    if (!isValidBase58(solanaPubkey)) {
+      return res.status(400).json({ error: 'Invalid Solana public key' });
     }
 
     // Recover the signer's Ethereum address from the message and signature
@@ -88,4 +105,3 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
-
