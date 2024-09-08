@@ -13,73 +13,64 @@ app.use(cors({
 
 app.use(express.json());
 
-// Initialize SQLite database
+// Initialize SQLite database with the new schema
 const db = new sqlite3.Database('signer_data.db', (err) => {
   if (err) {
     console.error('Error opening database', err);
   } else {
     console.log('Connected to the SQLite database.');
-    db.run(`CREATE TABLE IF NOT EXISTS signers (
-      solanaPubkey TEXT PRIMARY KEY,
-      signerAddresses TEXT
-    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS signers_normalized (
+      ethAddress TEXT PRIMARY KEY,
+      solanaPubkey TEXT
+    )`, (err) => {
+      if (err) {
+        console.error('Error creating table', err);
+      }
+    });
+
+    // Create an index on solanaPubkey to speed up queries
+    db.run(`CREATE INDEX IF NOT EXISTS idx_solana_pubkey ON signers_normalized(solanaPubkey)`, (err) => {
+      if (err) {
+        console.error('Error creating index:', err);
+      }
+    });
   }
 });
 
 app.post('/verify-message', async (req, res) => {
-    try {
-      const { message, signature, solanaPubkey } = req.body;
+  try {
+    const { message, signature, solanaPubkey } = req.body;
 
-      if (!message || !signature || !solanaPubkey) {
-        return res.status(400).json({ error: 'Message, signature, and Solana public key are required' });
-      }
+    if (!message || !signature || !solanaPubkey) {
+      return res.status(400).json({ error: 'Message, signature, and Solana public key are required' });
+    }
 
-      // Recover the signer's address from the message and signature
-      const signerAddress = ethers.verifyMessage(message, signature);
+    // Recover the signer's Ethereum address from the message and signature
+    const ethAddress = ethers.verifyMessage(message, signature);
 
-      console.log('Signer of the message: ' + signerAddress + ' SVM Pubkey: ' +solanaPubkey);
+    console.log('Signer of the message: ' + ethAddress + ' Solana Pubkey: ' + solanaPubkey);
 
-      // Write signer address and Solana public key to a text file
-      const fileData = `${signerAddress}:${solanaPubkey}\n`;
-      fs.appendFileSync('signer_data.txt', fileData);
+    // Write signer address and Solana public key to a text file
+    const fileData = `${ethAddress}:${solanaPubkey}\n`;
+    fs.appendFileSync('signer_data.txt', fileData);
 
-      // Update or insert the signer address for the given Solana public key in the database
-      db.get('SELECT signerAddresses FROM signers WHERE solanaPubkey = ?', [solanaPubkey], (err, row) => {
+    // Insert or update the signer address and associated Solana public key in the database
+    db.run(
+      `INSERT OR REPLACE INTO signers_normalized (ethAddress, solanaPubkey) VALUES (?, ?)`,
+      [ethAddress, solanaPubkey],
+      (err) => {
         if (err) {
-          console.error('Error querying database:', err);
+          console.error('Error inserting or replacing into database:', err);
           return res.status(500).json({ error: 'Internal server error' });
         }
 
-        if (row) {
-          // If the Solana public key exists, append the new signer address
-          const signerAddresses = row.signerAddresses.split(',');
-          if (!signerAddresses.includes(signerAddress)) {
-            signerAddresses.push(signerAddress);
-            db.run('UPDATE signers SET signerAddresses = ? WHERE solanaPubkey = ?', 
-              [signerAddresses.join(','), solanaPubkey], (err) => {
-                if (err) {
-                  console.error('Error updating database:', err);
-                  return res.status(500).json({ error: 'Internal server error' });
-                }
-              });
-          }
-        } else {
-          // If the Solana public key doesn't exist, insert a new record
-          db.run('INSERT INTO signers (solanaPubkey, signerAddresses) VALUES (?, ?)', 
-            [solanaPubkey, signerAddress], (err) => {
-              if (err) {
-                console.error('Error inserting into database:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-              }
-            });
-        }
-      });
-
-      res.json({ signer: signerAddress, solanaPubkey: solanaPubkey });
-    } catch (error) {
-      console.error('Error processing message:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+        res.json({ ethAddress: ethAddress, solanaPubkey: solanaPubkey });
+      }
+    );
+  } catch (error) {
+    console.error('Error processing message:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
